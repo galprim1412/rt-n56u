@@ -10,8 +10,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install Dependencies
+      - name: Setup System Directory & Dependencies
         run: |
+          sudo ln -sf "$GITHUB_WORKSPACE" /opt/rt-n56u
           sudo apt update
           sudo apt install -y unzip libtool-bin curl cmake gperf gawk flex bison nano \
           pkg-config autoconf automake make texinfo fakeroot ncurses-dev gettext \
@@ -20,21 +21,21 @@ jobs:
 
       - name: Build Toolchain
         run: |
-          cd toolchain-mipsel
+          cd /opt/rt-n56u/toolchain-mipsel
           chmod +x *.sh 2>/dev/null || true
-          if [ -f ./clean_sources.sh ]; then ./clean_sources.sh; elif [ -f ./clean_sources ]; then ./clean_sources; fi
-          if [ -f ./build_toolchain.sh ]; then ./build_toolchain.sh; elif [ -f ./build_toolchain ]; then ./build_toolchain; fi
+          if [ -f ./clean_sources.sh ]; then ./clean_sources.sh; else ./clean_sources; fi
+          if [ -f ./build_toolchain.sh ]; then ./build_toolchain.sh; else ./build_toolchain; fi
 
       - name: Build Firmware
         run: |
-          cd trunk
+          cd /opt/rt-n56u/trunk
           chmod +x *.sh 2>/dev/null || true
           cp configs/templates/RT-N14U.config .config
-          if [ -f ./clear_tree.sh ]; then ./clear_tree.sh; elif [ -f ./clear_tree ]; then ./clear_tree; fi
-          if [ -f ./build_firmware.sh ]; then fakeroot ./build_firmware.sh; elif [ -f ./build_firmware ]; then fakeroot ./build_firmware; fi
+          if [ -f ./clear_tree.sh ]; then ./clear_tree.sh; else ./clear_tree; fi
+          if [ -f ./build_firmware.sh ]; then fakeroot ./build_firmware.sh RT-N14U; else fakeroot ./build_firmware RT-N14U; fi
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Padavan-BL201-Firmware
-          path: trunk/images/*.trx
+          path: /opt/rt-n56u/trunk/images/*.trx
