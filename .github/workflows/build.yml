@@ -16,7 +16,7 @@ jobs:
           sudo apt install -y unzip libtool-bin curl cmake gperf gawk flex bison nano \
           pkg-config autoconf automake make texinfo fakeroot ncurses-dev gettext \
           autopoint libelf-dev libssl-dev build-essential zlib1g-dev libgmp3-dev \
-          libmpfr-dev libmpc-dev libudev-dev python-is-python3
+          libmpfr-dev libmpc-dev libudev-dev python-is-python3 help2man bc dos2unix
 
       - name: Build Toolchain
         run: |
