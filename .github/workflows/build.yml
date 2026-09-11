@@ -1,0 +1,38 @@
+name: Build Padavan RT-N14U
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y unzip libtool-bin curl cmake gperf gawk flex bison nano \
+          pkg-config autoconf automake make texinfo fakeroot ncurses-dev gettext \
+          autopoint libelf-dev libssl-dev build-essential zlib1g-dev libgmp3-dev \
+          libmpfr-dev libmpc-dev libudev-dev
+
+      - name: Build Toolchain
+        run: |
+          cd toolchain-mipsel
+          ./clean_sources
+          ./build_toolchain
+
+      - name: Build Firmware
+        run: |
+          cd trunk
+          cp configs/templates/RT-N14U.config .config
+          ./clear_tree
+          fakeroot ./build_firmware
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Padavan-BL201-Firmware
+          path: trunk/images/*.trx
