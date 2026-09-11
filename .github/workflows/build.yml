@@ -16,20 +16,22 @@ jobs:
           sudo apt install -y unzip libtool-bin curl cmake gperf gawk flex bison nano \
           pkg-config autoconf automake make texinfo fakeroot ncurses-dev gettext \
           autopoint libelf-dev libssl-dev build-essential zlib1g-dev libgmp3-dev \
-          libmpfr-dev libmpc-dev libudev-dev
+          libmpfr-dev libmpc-dev libudev-dev python-is-python3
 
       - name: Build Toolchain
         run: |
           cd toolchain-mipsel
-          ./clean_sources
-          ./build_toolchain
+          chmod +x *.sh 2>/dev/null || true
+          if [ -f ./clean_sources.sh ]; then ./clean_sources.sh; elif [ -f ./clean_sources ]; then ./clean_sources; fi
+          if [ -f ./build_toolchain.sh ]; then ./build_toolchain.sh; elif [ -f ./build_toolchain ]; then ./build_toolchain; fi
 
       - name: Build Firmware
         run: |
           cd trunk
+          chmod +x *.sh 2>/dev/null || true
           cp configs/templates/RT-N14U.config .config
-          ./clear_tree
-          fakeroot ./build_firmware
+          if [ -f ./clear_tree.sh ]; then ./clear_tree.sh; elif [ -f ./clear_tree ]; then ./clear_tree; fi
+          if [ -f ./build_firmware.sh ]; then fakeroot ./build_firmware.sh; elif [ -f ./build_firmware ]; then fakeroot ./build_firmware; fi
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
