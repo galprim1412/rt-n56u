@@ -12,7 +12,8 @@ jobs:
 
       - name: Setup System Directory & Dependencies
         run: |
-          sudo ln -sf "$GITHUB_WORKSPACE" /opt/rt-n56u
+          sudo rm -rf /opt/rt-n56u
+          sudo ln -s "$GITHUB_WORKSPACE" /opt/rt-n56u
           sudo apt update
           sudo apt install -y unzip libtool-bin curl cmake gperf gawk flex bison nano \
           pkg-config autoconf automake make texinfo fakeroot ncurses-dev gettext \
@@ -22,17 +23,27 @@ jobs:
       - name: Build Toolchain
         run: |
           cd /opt/rt-n56u/toolchain-mipsel
-          chmod +x *.sh 2>/dev/null || true
-          if [ -f ./clean_sources.sh ]; then ./clean_sources.sh; else ./clean_sources; fi
-          if [ -f ./build_toolchain.sh ]; then ./build_toolchain.sh; else ./build_toolchain; fi
+          chmod +x * 2>/dev/null || true
+          [ -f ./clean_sources ] && ./clean_sources || true
+          [ -f ./clean_sources.sh ] && ./clean_sources.sh || true
+          if [ -f ./build_toolchain ]; then
+            ./build_toolchain
+          elif [ -f ./build_toolchain.sh ]; then
+            ./build_toolchain.sh
+          fi
 
       - name: Build Firmware
         run: |
           cd /opt/rt-n56u/trunk
-          chmod +x *.sh 2>/dev/null || true
-          cp configs/templates/RT-N14U.config .config
-          if [ -f ./clear_tree.sh ]; then ./clear_tree.sh; else ./clear_tree; fi
-          if [ -f ./build_firmware.sh ]; then fakeroot ./build_firmware.sh RT-N14U; else fakeroot ./build_firmware RT-N14U; fi
+          chmod +x * 2>/dev/null || true
+          cp -f configs/templates/RT-N14U.config .config
+          [ -f ./clear_tree ] && ./clear_tree || true
+          [ -f ./clear_tree.sh ] && ./clear_tree.sh || true
+          if [ -f ./build_firmware ]; then
+            fakeroot ./build_firmware RT-N14U
+          elif [ -f ./build_firmware.sh ]; then
+            fakeroot ./build_firmware.sh RT-N14U
+          fi
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
